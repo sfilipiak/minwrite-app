@@ -1,6 +1,6 @@
 # MinWrite
 
-A lightweight, local-first writing app meant for clarity and progress.
+A lightweight, local-first writing app for clarity and progress.
 
 MinWrite gives you:
 
