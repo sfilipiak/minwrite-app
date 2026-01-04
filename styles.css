@@ -1,0 +1,2159 @@
+/* ==================================================================================
+   MinWrite.
+   Lovingly vibe coded by: Sarah E. Filipiak feat. ChatGPT 5.1 and Claude Opus 4.5
+   Special thanks to “Code Copilot” (ChatGPT) for code review & a11y polish 
+    and to Gemini 3 for debugging/cleanup 
+   ================================================================================== */
+
+:root {
+  /* Light theme (default) */
+  --bg: #f8f9fb;
+  --panel: #ffffff;
+  --accent: #2e7d6d;
+  --accent-strong: #1b5e50;
+  --accent-soft: #a2d9ca;
+  --text: #1d2129;
+  --muted: #5c6575;
+  --border: #e3e6ef;
+  --ring-bg: #e5e9f2;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --radius: 14px;
+  --transition: 0.25s ease;
+  --display-font: 'Fraunces', 'DM Serif Display', 'Cormorant Garamond', Georgia,
+    serif, 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Force default (light) theme unless .dark is active */
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body.dark {
+  --bg: #0d1117;
+  --panel: #171c24;
+  --accent: #53d3a7;
+  --accent-strong: #28a47f;
+  --accent-soft: #1f2b33;
+  --text: #f6f7fa; /* brighter, easier to read */
+  --muted: #a5aec0; /* slightly lighter for contrast */
+  --border: #2a323d;
+  --ring-bg: #1f2630;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+body.dark .sprint-banner {
+  background: linear-gradient(
+    135deg,
+    rgba(79, 184, 158, 0.88),
+    rgba(95, 200, 174, 0.88)
+  );
+  box-shadow: 0 6px 20px rgba(90, 154, 138, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+}
+
+.wrap {
+  display: flex;
+  justify-content: center; /* center instead of right align */
+  align-items: flex-start;
+  padding: 3rem 1rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 880px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background var(--transition), border var(--transition);
+}
+
+.card--narrow {
+  max-width: 840px;
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.header h1 {
+  font-size: 1.85rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.header h1 {
+  font-family: var(--display-font);
+  /* keep your current size/weight/margins as-is */
+}
+
+.app-title {
+  letter-spacing: -0.01em;
+}
+
+.app-title .accent-dot {
+  color: #2f8d70; /* your green */
+  font-size: 1.86rem;
+}
+
+/* Brand: title + tagline inline */
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* Hide tagline on mobile */
+@media (max-width: 640px) {
+  .tagline {
+    display: none;
+  }
+}
+
+/* Page-level titles (if/when you have separate view/page H1s) */
+h1.page-title,
+.main > h1,
+.view > h1 {
+  font-family: var(--display-font);
+  font-weight: 700;
+}
+
+.u-display {
+  font-family: var(--display-font) !important;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header {
+  position: relative;
+}
+
+.header .controls {
+  margin-left: auto; /* forces controls to the right side */
+}
+
+.header-link {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.header-link:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.header-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Dark mode */
+body.dark .header-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Buttons / Inputs ---------- */
+.btn,
+.pill,
+.input {
+  height: 38px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #f3f5f9;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.dark .btn,
+.dark .pill,
+.dark .input {
+  background: #1d232d;
+  border-color: var(--border);
+}
+
+.btn:hover,
+.pill:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.pill:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px; /* why: clear, accessible focus ring */
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+
+.btn.primary:hover {
+  background: var(--accent-strong);
+}
+
+.btn.success {
+  background: #21c87a;
+  color: #fff;
+  border: none;
+}
+
+.btn.success:hover {
+  background: #1da66a;
+}
+
+.input {
+  background: #f8f9fb;
+  padding-right: 0.5rem;
+}
+
+.input input {
+  width: 70px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  outline: none;
+}
+
+/* ---------- Export Button (accented + stable) ---------- */
+#exportBtn {
+  background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+#exportBtn:hover {
+  background: linear-gradient(135deg, #29b6f6 0%, #0288d1 100%);
+  box-shadow: 0 2px 5px rgba(41, 182, 246, 0.35);
+}
+
+body.dark #exportBtn {
+  background: linear-gradient(135deg, #0288d1 0%, #039be5 100%);
+}
+
+body.dark #exportBtn:hover {
+  background: linear-gradient(135deg, #039be5 0%, #4fc3f7 100%);
+  box-shadow: 0 2px 5px rgba(3, 155, 229, 0.35);
+}
+
+/* === Export Dropdown Menu === */
+.export-menu {
+  position: absolute;
+  bottom: 60px; /* above footer */
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0.4rem 0;
+  width: 180px;
+  display: none;
+  z-index: 2500; /* above everything except About panel */
+}
+
+.export-menu.open {
+  display: block;
+}
+
+.export-option {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.export-option:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.export-option[aria-disabled='true'] {
+  opacity: 0.45;
+  pointer-events: none; /* why: prevent clicks/focus */
+  cursor: not-allowed;
+}
+
+.export-option-danger {
+  color: #e84c4c;
+}
+
+.export-option-danger:hover {
+  background: rgba(232, 76, 76, 0.1);
+  color: #c93c3c;
+}
+
+/* ---------- Sprint Buttons (Natural Jade) ---------- */
+#sprint15,
+#sprint25 {
+  background: linear-gradient(135deg, #2e7d68, #3b9a7d);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+#sprint15:hover,
+#sprint25:hover {
+  background: linear-gradient(135deg, #276b59, #2f8d70);
+  box-shadow: 0 3px 6px rgba(47, 141, 112, 0.35);
+  transform: translateY(-1px);
+}
+
+body.dark #sprint15,
+body.dark #sprint25 {
+  background: linear-gradient(135deg, #236655, #2f8d70);
+}
+
+body.dark #sprint15:hover,
+body.dark #sprint25:hover {
+  background: linear-gradient(135deg, #1d5748, #2a7b63);
+  box-shadow: 0 3px 6px rgba(47, 141, 112, 0.45);
+}
+
+/* ---------- Focus Mode Button (Soft Blue-Gray) ---------- */
+#focusBtn {
+  background: linear-gradient(135deg, #4f7d9b, #6fa9c9);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+#focusBtn:hover {
+  background: linear-gradient(135deg, #45708c, #5b94b3);
+  box-shadow: 0 3px 6px rgba(79, 125, 155, 0.35);
+  transform: translateY(-1px);
+}
+
+body.dark #focusBtn {
+  background: linear-gradient(135deg, #365f77, #4f7d9b);
+}
+
+body.dark #focusBtn:hover {
+  background: linear-gradient(135deg, #2f5469, #45708c);
+  box-shadow: 0 3px 6px rgba(79, 125, 155, 0.45);
+}
+
+/* ---------- Exit Focus Mode Button (Modern Styling) ---------- */
+.exit-focus {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  opacity: 0.95;
+  transition: none;
+}
+
+.exit-focus.show {
+  display: inline-flex;
+}
+
+.exit-focus:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+body.dark .exit-focus {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+body.dark .exit-focus:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ——— Goal control alignment fix ——— */
+.controls .input {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: auto 34px 84px 34px; /* label, −, number, + */
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px; /* even inset all around */
+  height: 40px;
+  box-sizing: border-box;
+  overflow: hidden; /* keeps inner pills inside the parent radius */
+}
+
+.controls .input span {
+  margin: 0;
+  line-height: 1;
+}
+
+.controls .input .btn {
+  width: 34px;
+  height: 28px;
+  padding: 0;
+  line-height: 28px; /* perfect vertical centering */
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.controls .input input {
+  width: 84px; /* stops right-edge crowding */
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  line-height: 28px;
+  box-sizing: border-box;
+}
+
+/* remove number spinners for consistent centering */
+.controls .input input::-webkit-outer-spin-button,
+.controls .input input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.controls .input input {
+  -moz-appearance: textfield;
+}
+
+/* ---------- Toggle ---------- */
+.toggle {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--ring-bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.toggle .knob {
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  border-radius: 50%;
+  transform: translateX(2px);
+  transition: all 0.3s ease;
+}
+.toggle.active {
+  background: var(--accent-soft);
+}
+.toggle.active .knob {
+  transform: translateX(24px);
+  background: var(--accent-strong);
+}
+
+.theme-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.theme-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  user-select: none;
+}
+
+body.focus-mode #aboutToggle {
+  display: none;
+}
+
+/* ---------- Editor Section ---------- */
+.editor-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--panel);
+  position: relative;
+  overflow: visible;
+}
+
+body.focus-mode .editor-wrap {
+  height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Focus Mode: Zen Layout ---------- */
+body.focus-mode .card {
+  max-width: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg);
+  height: 100vh;
+}
+
+body.focus-mode textarea {
+  max-width: 760px;
+  margin: 0 auto;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding-bottom: 5rem;
+}
+
+body.focus-mode .metrics,
+body.focus-mode .progress,
+body.focus-mode .ringbox {
+  display: none;
+}
+
+/* ---------- Focus Mode Footer ---------- */
+.focus-footer {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.85rem 1.5rem;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  z-index: 900;
+}
+
+body.focus-mode .focus-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.focus-stats {
+  font-size: 0.95rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.focus-stats span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.focus-progress {
+  flex: 1;
+  max-width: 300px;
+  height: 10px;
+  background: var(--ring-bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.focus-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.focus-sprint {
+  font-size: 0.95rem;
+  color: var(--muted);
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius);
+  transition: background 0.2s ease, color 0.2s ease;
+  min-width: 7rem;
+  text-align: center;
+}
+
+.focus-sprint:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.focus-sprint.paused {
+  background: var(--ring-bg);
+  color: var(--text);
+  font-weight: 600;
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+.focus-sprint:empty {
+  pointer-events: none;
+  cursor: default;
+}
+
+.focus-sprint:empty {
+  display: none;
+}
+
+body.focus-mode textarea {
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  overflow-y: auto;
+  padding-bottom: 35vh !important;
+  scroll-padding-bottom: 35vh;
+}
+
+body.focus-mode .about-panel.open {
+  z-index: 10005;
+}
+
+.metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+/* ---------- Stat Chips ---------- */
+.chip {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 90px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.84rem;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0.3)
+  );
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.chip strong {
+  color: var(--text);
+  margin-left: 6px;
+  font-size: 0.95rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* Dark mode chips */
+body.dark .chip {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.03)
+  );
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+/* Non-interactive chips: subtle background only, no movement */
+.chip:hover:not(.chip-goal):not(.chip-sprint) {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.dark .chip:hover:not(.chip-goal):not(.chip-sprint) {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Sprint pill hover — ONLY when idle and menu closed */
+#sprintPill:not(.running):not(.paused):not(.finished):not(.menu-open):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(46, 125, 109, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Disable movement in all non-idle states */
+#sprintPill.running,
+#sprintPill.paused,
+#sprintPill.finished,
+#sprintPill.menu-open {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Goal Chip (Editable) ---------- */
+.chip-goal {
+  cursor: pointer;
+  position: relative;
+  min-width: 120px;
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid rgba(46, 125, 109, 0.25);
+  background: linear-gradient(
+    135deg,
+    rgba(46, 125, 109, 0.08),
+    rgba(46, 125, 109, 0.03)
+  );
+}
+
+.chip-goal:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(46, 125, 109, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  transform: translateY(-1px);
+}
+
+.chip-goal:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.goal-display {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.goal-display strong {
+  font-size: 0.95rem;
+  color: var(--accent-strong);
+}
+
+/* Hover hint */
+.chip-goal::after {
+  content: 'click to edit';
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.chip-goal:hover::after {
+  opacity: 1;
+}
+
+/* Edit mode */
+.chip-goal.editing {
+  min-width: 160px;
+  padding: 0.35rem 0.5rem;
+}
+
+.chip-goal.editing::after {
+  display: none;
+}
+
+.goal-edit {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chip-goal.editing .goal-display {
+  display: none;
+}
+
+.chip-goal.editing .goal-edit {
+  display: flex;
+}
+
+.goal-input {
+  width: 70px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.goal-input::-webkit-outer-spin-button,
+.goal-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.goal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(46, 125, 109, 0.2);
+}
+
+.goal-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.goal-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
+
+.goal-btn:active {
+  transform: scale(0.95);
+}
+
+/* Dark mode adjustments */
+body.dark .chip-goal {
+  background: linear-gradient(
+    135deg,
+    rgba(83, 211, 167, 0.1),
+    rgba(83, 211, 167, 0.04)
+  );
+  border-color: rgba(83, 211, 167, 0.3);
+}
+
+body.dark .chip-goal:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(83, 211, 167, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.dark .goal-display strong {
+  color: var(--accent);
+}
+
+body.dark .goal-input {
+  background: var(--panel);
+  border-color: var(--border);
+}
+
+body.dark .goal-btn {
+  background: var(--panel);
+  border-color: var(--border);
+}
+
+/* ---------- Unified Sprint Pill ---------- */
+.chip-sprint {
+  position: relative;
+  cursor: pointer;
+  min-width: auto;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--accent-soft);
+  background: linear-gradient(
+    135deg,
+    rgba(46, 125, 109, 0.08),
+    rgba(46, 125, 109, 0.03)
+  );
+  transition: all 0.2s ease;
+}
+
+.chip-sprint:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(46, 125, 109, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  transform: translateY(-1px);
+}
+
+.chip-sprint:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sprint-display {
+  font-weight: 600;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Running state */
+.chip-sprint.running {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px 2px rgba(46, 125, 109, 0.3);
+}
+
+.chip-sprint.running .sprint-display {
+  color: var(--accent-strong);
+}
+
+/* Paused state */
+@keyframes sprint-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.chip-sprint.paused {
+  background: var(--ring-bg);
+  border-color: var(--border);
+  animation: sprint-pulse 2s ease-in-out infinite;
+}
+
+.chip-sprint.paused .sprint-display {
+  color: var(--text);
+}
+
+/* Finished flash */
+@keyframes sprint-flash {
+  0% {
+    background: rgba(46, 125, 109, 0.3);
+  }
+  100% {
+    background: linear-gradient(
+      135deg,
+      rgba(46, 125, 109, 0.08),
+      rgba(46, 125, 109, 0.03)
+    );
+  }
+}
+
+.chip-sprint.finished {
+  animation: sprint-flash 0.5s ease-out;
+}
+
+/* Sprint Popover */
+.sprint-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0.4rem;
+  z-index: 2500;
+  gap: 0.3rem;
+}
+
+.sprint-popover.open {
+  display: flex;
+}
+
+.sprint-option {
+  padding: 0.5rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.sprint-option:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.sprint-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.sprint-option-danger {
+  color: #e84c4c;
+}
+
+.sprint-option-danger:hover {
+  background: rgba(232, 76, 76, 0.1);
+  color: #c35c5c;
+}
+
+/* Dark mode */
+body.dark .chip-sprint {
+  background: linear-gradient(
+    135deg,
+    rgba(83, 211, 167, 0.1),
+    rgba(83, 211, 167, 0.04)
+  );
+  border-color: rgba(83, 211, 167, 0.3);
+}
+
+body.dark .chip-sprint:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(83, 211, 167, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.dark .chip-sprint.running {
+  background: rgba(83, 211, 167, 0.2);
+  box-shadow: 0 0 12px 3px rgba(83, 211, 167, 0.4);
+}
+
+body.dark .chip-sprint.running .sprint-display {
+  color: var(--accent);
+}
+
+body.dark .sprint-display {
+  color: var(--accent);
+}
+
+body.dark .sprint-popover {
+  background: var(--panel);
+  border-color: var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ------------ Progress Ring ----------- */
+
+.ringbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ring {
+  width: clamp(48px, 6vw, 64px);
+  height: clamp(48px, 6vw, 64px);
+}
+
+.ring text {
+  fill: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Highlighted ring and label when goal is complete */
+.ring.complete #ringProgress {
+  stroke: var(--accent-strong);
+  fill: var(--accent-strong);
+}
+.ring.complete text {
+  fill: #fff;
+  font-weight: 700;
+}
+
+/* ---------- Celebration Ring Animation ---------- */
+@keyframes celebration-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.9));
+  }
+}
+
+.ring.celebrating #ringProgress {
+  stroke: #d4af37;
+  fill: #d4af37;
+  transition: stroke 0.4s ease, fill 0.4s ease;
+}
+
+.ring.celebrating text {
+  fill: #fff;
+  transition: fill 0.4s ease;
+}
+
+.ring.celebrating {
+  animation: celebration-glow 0.9s ease-in-out 2;
+}
+
+/* Fade back to green after celebration */
+.ring.complete:not(.celebrating) #ringProgress {
+  transition: stroke 0.5s ease;
+}
+
+.ring.complete:not(.celebrating) text {
+  transition: fill 0.5s ease;
+}
+
+/* Dark mode: brighter gold, stronger glow */
+body.dark .ring.celebrating #ringProgress {
+  stroke: #e0c454;
+  fill: #e0c454;
+}
+
+body.dark .ring.celebrating text {
+  fill: #3d2e1a;
+}
+
+@keyframes celebration-glow-dark {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(224, 196, 84, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(224, 196, 84, 1));
+  }
+}
+
+body.dark .ring.celebrating {
+  animation: celebration-glow-dark 0.9s ease-in-out 2;
+}
+
+/* ---------- Progress Bar ---------- */
+.progress {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ring-bg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.progress .bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #6ce1b8, var(--accent));
+  transition: width 0.35s ease;
+}
+
+/* =======================================================
+   Celebration Banner (Final Vibe: Soft Gradient Gold)
+   ======================================================= */
+
+.celebrate {
+  /* Positioning */
+  position: absolute;
+  top: 4.5rem; /* Retained the lowered position */
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 100;
+
+  /* Size & Shape */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  padding: 1rem 2.25rem; /* A little more horizontal padding */
+  width: max-content;
+  max-width: 90%;
+
+  /* NEW COLOR SCHEME: Soft Gradient Gold */
+  background: #ffc700; /* Fallback color */
+  /* This gradient starts lighter and moves to the richer gold */
+  background: linear-gradient(145deg, #fceb9c, #ffc700 70%);
+
+  /* Soft, rich dark brown/charcoal text (Less harsh than black) */
+  color: #363012;
+
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+
+  border-radius: 999px;
+
+  /* Deep, Gold-tinted shadow */
+  box-shadow: 0 15px 50px -10px rgba(255, 199, 0, 0.5),
+    /* Stronger, softer shadow */ 0 0 0 1px rgba(255, 255, 255, 0.5) inset; /* Soft inner highlight */
+
+  /* Animation States */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.celebrate.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+/* Emoji Fix: Restoring the emoji via CSS */
+.celebrate::before {
+  content: '🎉';
+  font-size: 1.4em;
+  margin-top: -3px;
+}
+
+/* Dark Mode: Swapping to a dark background with gold text for contrast */
+body.dark .celebrate {
+  background: #2e3034; /* Dark neutral background */
+  color: #ffc700; /* Gold text */
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 199, 0, 0.5); /* Subtle gold border */
+}
+
+/* ---------- Sprint Banner ---------- */
+.sprint-banner {
+  display: none;
+  position: absolute;
+  top: 7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 1rem 2.15rem;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(74, 138, 122, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  backdrop-filter: blur(8px);
+  background: linear-gradient(
+    135deg,
+    rgba(61, 154, 133, 0.92),
+    rgba(79, 184, 158, 0.92)
+  );
+  z-index: 1200;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  color: #fff;
+}
+
+.sprint-banner.show {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.sprint-banner.hide {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---------- Textarea ---------- */
+textarea {
+  width: 100%;
+  min-height: 360px;
+  font-size: 1.05rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  padding-bottom: 8rem;
+  scroll-padding-bottom: 6rem;
+  resize: vertical;
+  outline: none;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; /* include padding in width calculation */
+  transition: border var(--transition), box-shadow var(--transition);
+}
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(83, 211, 167, 0.25);
+}
+
+/* ===== textarea:placeholder {
+  color: var(--muted);
+} ===== */
+
+/* ===== Focus Mode: Expand textarea to fill screen ===== */
+body.focus-mode textarea {
+  height: 100%; /* fill editor-wrap, not entire screen */
+  min-height: 100%;
+  max-height: none;
+  padding-bottom: 3rem;
+  resize: none;
+  border-radius: var(--radius);
+  max-height: none;
+  transition: height 0.25s ease;
+}
+
+/* ===== Fix: Keep the card visible & padded in focus mode ===== */
+body.focus-mode .card {
+  max-width: 880px; /* keep your usual width */
+  margin: 0 auto;
+  border: 1px solid var(--border); /* maintain box outline */
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  height: calc(100vh - 2rem); /* full height but still boxed */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* prevents editor from spilling out */
+}
+
+/* Give editor-wrap breathing room */
+body.focus-mode .editor-wrap {
+  padding: 1.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+body.dark textarea {
+  background: #10151d;
+  color: var(--text);
+  border-color: #2c3541;
+  box-shadow: inset 0 1px 6px rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- Save Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem 1.4rem;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.left,
+.right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* ---------- Confetti ---------- */
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 14px;
+  opacity: 0.9;
+  border-radius: 2px;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 2000;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: var(--sidebar-bg, #f1f3f7);
+  border-right: 1px solid var(--sidebar-border, #d9dee8);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1500;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+}
+body.dark .sidebar {
+  background: var(--sidebar-bg, #151a22);
+  border-color: var(--sidebar-border, #2a313c);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Sidebar content */
+.sidebar h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar li {
+  padding: 0.6rem 0.4rem;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sidebar li:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* ---------- Hamburger Toggle ---------- */
+.sidebar-toggle {
+  position: fixed;
+  top: 0.6rem;
+  left: 0.5rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  z-index: 1600;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.sidebar-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+body.dark .sidebar-toggle {
+  background: var(--panel);
+}
+
+/* ========== Right-side About Panel ========== */
+
+.about-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 320px;
+  max-width: 85vw;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  z-index: 1700;
+  display: flex;
+  flex-direction: column;
+}
+
+.about-panel.open {
+  transform: translateX(0);
+}
+
+.about-inner {
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.about-close {
+  align-self: flex-end;
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0.1rem 0.2rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.about-close:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text);
+}
+
+body.dark .about-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.about-header h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.about-tagline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.about-section {
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+#privacySection {
+  border-top: none;
+  padding-top: 0; /* optional */
+}
+
+.about-section h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.about-section p {
+  margin: 0 0 0.4rem;
+  font-size: 0.87rem;
+}
+
+.about-list {
+  margin: 0.2rem 0 0.4rem;
+  padding-left: 1.1rem;
+  font-size: 0.87rem;
+  color: var(--text);
+}
+
+.about-list li + li {
+  margin-top: 0.15rem;
+}
+
+.about-links {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.about-links a {
+  text-decoration: none;
+  color: var(--accent-strong);
+}
+
+.about-links a:hover {
+  text-decoration: underline;
+}
+
+/* Footer brand styling in About */
+.brand-mark {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.brand-mark .brand-dot {
+  color: #2f8d70; /* Your signature green */
+}
+
+/* ===== Support Box (Enhanced Tip Section) ===== */
+
+.enhanced-tip {
+  background: linear-gradient(
+      135deg,
+      rgba(83, 211, 167, 0.14),
+      rgba(79, 125, 155, 0.1)
+    ),
+    var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.15rem 1.1rem 1.2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Heading row with logo */
+.tip-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.6rem;
+}
+
+.tip-heading-row h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.tip-logo {
+  height: 26px;
+  width: auto;
+  opacity: 0.9;
+}
+
+/* Scoped to the enhanced tip only */
+.enhanced-tip .tip-heading-row h3.u-display {
+  font-size: clamp(1.02rem, 0.42vw + 0.94rem, 1.18rem);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+/* More breathing room above the button row */
+.enhanced-tip .tip-btn-wrap {
+  margin-top: 0.9rem; /* was 0.3rem */
+}
+
+/* Enhanced Tip — logo micro-bump next to the display h3 */
+.enhanced-tip .tip-logo {
+  height: clamp(24px, 2vw, 28px);
+  width: auto;
+}
+
+/* Support text block */
+.tip-text {
+  font-size: 0.87rem;
+  line-height: 1.45;
+  margin: 0 0 0.9rem;
+  color: var(--text);
+}
+
+/* Center the button ONLY */
+.tip-btn-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+
+/* ===== Buy Me a Coffee Button ===== */
+
+.bmac-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.2rem;
+  background: linear-gradient(135deg, #7c3aed, #6b2dd2);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.bmac-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(124, 58, 237, 0.35);
+  background: linear-gradient(135deg, #6b2dd2, #5b23b8);
+}
+
+.bmac-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.2);
+}
+
+/* Logo inside button */
+.bmac-icon {
+  height: 1.15rem;
+  width: auto;
+  filter: brightness(0) invert(1); /* makes logo white */
+  opacity: 0.92;
+  display: inline-block;
+}
+
+.about-footer {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Small tweak for tiny screens */
+@media (max-width: 480px) {
+  .about-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* ---------- Mobile Overlay ---------- */
+@media (max-width: 768px) {
+  body.sidebar-open .card {
+    transform: none; /* overlay instead of push */
+  }
+  .sidebar {
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 8px 0 25px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* ---------- Sidebar Header: Badge Style ---------- */
+.sidebar-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.75rem 0.1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(0, 140, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+body.dark .sidebar-header {
+  background: rgba(0, 200, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar-header .icon {
+  font-size: 1rem;
+}
+
+/* ---------- Session Stats Grid ---------- */
+.session-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.dark .stat-card {
+  background: var(--panel-dark, #1f242d);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card .icon {
+  display: block;
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card .label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-bottom: 0.2rem;
+}
+
+.stat-card .value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ---------- Daily Streak Section ---------- */
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  margin-bottom: 0.6rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.streak-icon {
+  font-size: 1.4rem;
+}
+
+.streak-count {
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.record {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.streak-reset {
+  display: block;
+  margin: 0.2rem 0 0 auto; /* 👈 pushes it to the right */
+  padding: 0;
+  border: none;
+  background: none;
+  color: #e85c41; /* subtle red-orange */
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: right;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.streak-reset:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* ---------- Appearance Controls ---------- */
+.appearance-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.appearance-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+#fontSizeSlider {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.font-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.font-toggle-row .label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  user-select: none;
+}
+
+body.serif #editor {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: var(--editor-font-size, 18px);
+}
+
+body.sans #editor {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--editor-font-size, 17.5px);
+}
+
+#editor {
+  font-family: var(
+    --editor-font-family,
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif
+  );
+  transition: font-size 0.25s ease, font-family 0.25s ease;
+}
+
+.appearance-group {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .wrap {
+    justify-content: center;
+    padding: 1rem;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .controls {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .metrics {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  textarea {
+    min-height: 260px;
+    font-size: 1rem;
+  }
+}
+
+/* ==== Fix layout jump when sidebar toggles ==== */
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Keep the main container anchored to the top */
+.wrap {
+  display: flex;
+  align-items: flex-start !important;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem 1rem;
+  position: relative;
+  top: 0;
+}
+
+/* Ensure the card doesn’t get pushed down */
+.card {
+  position: relative;
+  top: 0;
+  margin: 0 auto;
+  transition: margin-left 0.3s ease;
+}
+
+/* Sidebar and toggle layer ordering */
+.sidebar {
+  z-index: 1500;
+}
+.sidebar-toggle {
+  position: fixed;
+  z-index: 2000;
+}
+
+/* Prevent .wrap or .card from shifting down due to transforms */
+body.sidebar-open .wrap,
+body.sidebar-open .card {
+  transform: none !important;
+}
+
+/* Shift hamburger when sidebar is open */
+body.sidebar-open .sidebar-toggle {
+  left: 260px; /* slightly wider than sidebar width (240px) */
+  transform: rotate(90deg); /* optional, gives a visual cue */
+}
+
+/* Optionally turn it into an X */
+body.sidebar-open .sidebar-toggle::before {
+  content: '×';
+  font-size: 1.4rem;
+  line-height: 1;
+  position: absolute;
+  top: 4px;
+  left: 9px;
+}
+body.sidebar-open .sidebar-toggle {
+  font-size: 0; /* hide ☰ */
+}
+
+.sidebar-toggle {
+  transition: background 0.2s, transform 0.2s, left 0.3s ease;
+}
+
+.sidebar-section {
+  margin-bottom: 1.2rem; /* add some breathing room between sections */
+}
+
+/* --- Sprint row layout (keeps top row streamlined) --- */
+#sprint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap; /* allows wrapping on small screens if needed */
+}
+
+/* Clock chip stays inline; glow will be state-driven later */
+#sprint .sprint-clock {
+  white-space: nowrap;
+}
+
+/* Split button sits horizontally */
+#sprint .split {
+  position: relative; /* anchor menu */
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Make the caret match height nicely */
+#sprint #sprintMenuToggle {
+  height: 38px; /* same as .btn */
+  padding: 0 0.6rem;
+}
+
+/* Reuse export menu styling but reposition it for the split button */
+#sprint #sprintMenu.export-menu {
+  position: absolute;
+  top: calc(100% + 6px); /* below buttons */
+  right: 0; /* align to caret */
+  left: auto; /* override footer menu's left */
+  bottom: auto; /* override footer menu's bottom */
+  z-index: 2500;
+}
+
+/* Visibility control for Reset: hidden by default, we’ll flip via JS state */
+#sprint #resetSprint.hidden {
+  display: none !important;
+}
+
+/* Styling for the Reset button when visible (optional, adjust color if needed) */
+#resetSprint {
+  background: linear-gradient(
+    135deg,
+    #c35c5c,
+    #e84c4c
+  ); /* Reddish tone for Stop/Reset */
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+#resetSprint:hover {
+  background: linear-gradient(135deg, #b04e4e, #d43b3b);
+  box-shadow: 0 3px 6px rgba(232, 76, 76, 0.35);
+  transform: translateY(-1px);
+}
+
+body.dark #resetSprint {
+  background: linear-gradient(135deg, #9b3d3d, #c35c5c);
+}
+
+/* --- Sprint Pill Idle State Boost --- */
+#sprintPill:not(.running):not(.paused):not(.finished) {
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(46, 125, 109, 0.25) inset;
+  transition: all 0.2s ease;
+}
+
+#sprintPill:hover:not(.running):not(.paused):not(.finished) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(46, 125, 109, 0.25);
+}
+
+/* Optional: prevent wrap-jump of the metrics line on narrow widths */
+@media (min-width: 641px) {
+  .metrics .stats {
+    gap: 0.7rem;
+  }
+  #sprint {
+    flex-wrap: nowrap;
+  }
+}

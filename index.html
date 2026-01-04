@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Load Google Fonts stylesheet directly -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Serif+Display:ital@0;1&family=Cormorant+Garamond:wght@400;600&display=swap"
+    />
+
+    <title>MinWrite Writing Goal Tracker ✍️</title>
+    <meta
+      name="description"
+      content="A distraction-free writing tool to help you reach your word count goals with sprints, focus mode, and progress tracking."
+    />
+    <meta name="theme-color" content="#2e7d6d" />
+    <link rel="icon" href="/assets/favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Sidebar + Toggle -->
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open menu">
+        ☰
+      </button>
+
+      <aside id="sidebar" class="sidebar">
+        <!-- Session Stats -->
+        <div class="sidebar-section">
+          <div class="sidebar-header">
+            <span class="icon">📊</span>
+            <span class="title">Session Stats</span>
+          </div>
+
+          <div class="session-grid">
+            <div class="stat-card">
+              <span class="icon">📝</span>
+              <div class="label">Words Today</div>
+              <div class="value" id="statWords">0</div>
+            </div>
+
+            <div class="stat-card">
+              <span class="icon">⏱️</span>
+              <div class="label">Minutes Writing</div>
+              <div class="value" id="statMinutes">0</div>
+            </div>
+
+            <div class="stat-card">
+              <span class="icon">⚡</span>
+              <div class="label">Best Sprint</div>
+              <div class="value" id="statBestSprint">—</div>
+            </div>
+
+            <div class="stat-card">
+              <span class="icon">🐇</span>
+              <div class="label">Sprints Today</div>
+              <div class="value" id="statSprints">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔥 Daily Streak -->
+        <div class="sidebar-section">
+          <div class="sidebar-header">
+            <span class="icon">🔥</span>
+            <span class="title">Daily Streak</span>
+          </div>
+
+          <div class="streak-display">
+            <span class="streak-icon">🔥</span>
+            <span class="streak-count" id="streakCount">0</span>
+            <small class="record" id="streakRecord">(Record: 0)</small>
+          </div>
+          <button class="streak-reset" id="resetStreakBtn" title="Reset Streak">
+            Reset streak
+          </button>
+        </div>
+
+        <!-- 🎨 Appearance -->
+        <div class="sidebar-section">
+          <div class="sidebar-header">
+            <span class="icon">🎨</span>
+            <span class="title">Appearance</span>
+          </div>
+
+          <div class="appearance-controls">
+            <label for="fontSizeSlider" class="appearance-label"
+              >Font Size</label
+            >
+            <input
+              type="range"
+              id="fontSizeSlider"
+              min="14"
+              max="28"
+              value="18"
+            />
+
+            <div class="font-toggle-row">
+              <span class="label">Serif</span>
+              <div
+                id="fontStyleToggle"
+                class="toggle"
+                role="switch"
+                aria-checked="false"
+                tabindex="0"
+              >
+                <div class="knob"></div>
+              </div>
+              <span class="label">Sans</span>
+            </div>
+
+            <!-- Theme card -->
+            <div class="appearance-group">
+              <label class="appearance-label" for="themeToggle">Theme</label>
+              <div class="font-toggle-row">
+                <span class="label">Light</span>
+                <div
+                  id="themeToggle"
+                  class="toggle"
+                  role="switch"
+                  aria-checked="false"
+                  tabindex="0"
+                >
+                  <div class="knob"></div>
+                </div>
+                <span class="label">Dark</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <aside id="aboutPanel" class="about-panel" aria-hidden="true">
+        <div class="about-inner">
+          <button
+            id="aboutClose"
+            class="about-close"
+            type="button"
+            aria-label="Close About panel"
+          >
+            ×
+          </button>
+
+          <header class="about-header">
+            <h2>About MinWrite</h2>
+            <p class="about-tagline">
+              Grab a cup of coffee, put on your favorite playlist and get ready
+              to knock out your writing goals!
+            </p>
+          </header>
+
+          <section class="about-section">
+            <h3>How to Use This Tool</h3>
+            <ul class="about-list">
+              <li>Set a word goal that feels doable.</li>
+              <li>
+                Write in the editor and watch your progress update
+                automatically.
+              </li>
+              <li>Use timed sprints to keep yourself on track.</li>
+              <li>
+                Focus Mode hides controls and lets you concentrate on your
+                words.
+              </li>
+              <li>
+                <strong
+                  >Export periodically if you want to retain your work.</strong
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section class="about-section enhanced-tip">
+            <div class="tip-heading-row">
+              <img
+                src="assets/bmc-logo-no-background.png"
+                class="tip-logo"
+                alt="Coffee icon"
+                loading="lazy"
+              />
+              <h3 class="u-display">Support This Tool</h3>
+            </div>
+
+            <p class="tip-text">
+              Is MinWrite helping you meet your writing goals? Support this app!
+              Most writers tip somewhere between <strong>$5–10</strong>, but any
+              amount is appreciated.
+            </p>
+
+            <div class="tip-btn-wrap">
+              <a
+                href="https://buymeacoffee.com/sfilipiak"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bmac-btn"
+              >
+                <img
+                  src="assets/bmc-logo-no-background.png"
+                  class="bmac-icon"
+                  alt=""
+                  loading="lazy"
+                />
+                Buy Me a Coffee
+              </a>
+            </div>
+          </section>
+
+          <section class="about-section" id="privacySection">
+            <h3>Privacy & Storage</h3>
+            <p>
+              Your writing stays with your device. This tool stores everything
+              in your browser’s local storage. Clearing site data or using
+              incognito/private mode will erase your work here.
+            </p>
+            <p>
+              On iPhone/iPad (Safari), if you don’t open the app for about a
+              week, iOS may automatically clear site data.
+              <strong
+                >If you care about keeping your work, export regularly.</strong
+              >
+            </p>
+            <p class="about-links">
+              <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                >Privacy Policy</a
+              >
+              <span>·</span>
+              <a href="/terms" target="_blank" rel="noopener noreferrer"
+                >Terms of Use</a
+              >
+            </p>
+          </section>
+
+          <section class="about-section">
+            <h3>Why I Built This</h3>
+            <p>
+              The part of writing I find most challenging is adding words to the
+              page. I needed a way to work that was straightforward and
+              encouraging, perfect for those of us who may find any excuse not
+              to write. Building this app allowed me to put off a great deal of
+              writing. Alas, it is now finished enough to use. I hope you enjoy
+              creating with it.
+            </p>
+          </section>
+
+          <footer class="about-footer">
+            <p>
+              © 2025 Sarah Filipiak LLC <br />
+              Thanks for using
+              <span class="brand-mark u-display"
+                >MinWrite<span class="brand-dot">.</span></span
+              >
+              <a
+                href="https://www.linkedin.com/in/sfilipiak/"
+                target="_blank"
+                rel="noopener"
+                >Connect on LinkedIn</a
+              >.
+            </p>
+          </footer>
+        </div>
+      </aside>
+
+      <div class="card">
+        <div class="header">
+          <div class="brand">
+            <h1 class="app-title">MinWrite<span class="accent-dot">.</span></h1>
+            <span class="tagline">Just keep writing.</span>
+          </div>
+
+          <div class="controls">
+            <!-- Hidden input keeps existing JS working -->
+            <input
+              type="number"
+              id="goal"
+              min="1"
+              value="1000"
+              class="visually-hidden"
+              aria-hidden="true"
+              tabindex="-1"
+            />
+            <button
+              id="aboutToggle"
+              class="header-link"
+              type="button"
+              aria-label="About this tool and tipping"
+            >
+              ⓘ
+            </button>
+          </div>
+        </div>
+
+        <div class="editor-wrap">
+          <div class="metrics">
+            <div class="stats" id="stats">
+              <div class="chip">Words <strong id="words">0</strong></div>
+              <div
+                class="chip chip-goal"
+                id="goalChip"
+                role="button"
+                tabindex="0"
+                aria-label="Edit word goal, currently 1000"
+              >
+                <span class="goal-display"
+                  >Goal &nbsp;/ <strong id="goalDisplay">1000</strong></span
+                >
+                <div class="goal-edit" hidden>
+                  <button
+                    class="goal-btn"
+                    id="decGoalNew"
+                    aria-label="Decrease goal"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    id="goalInputNew"
+                    class="goal-input"
+                    min="1"
+                    value="1000"
+                    aria-label="Word goal"
+                  />
+                  <button
+                    class="goal-btn"
+                    id="incGoalNew"
+                    aria-label="Increase goal"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div class="chip">
+                Remaining <strong id="remaining">1000</strong>
+              </div>
+
+              <!-- Unified Sprint Pill -->
+              <div
+                class="chip chip-sprint"
+                id="sprintPill"
+                role="button"
+                tabindex="0"
+                aria-label="Start a sprint"
+              >
+                <span class="sprint-display" id="sprintDisplay">▶ Sprint</span>
+                <div
+                  class="sprint-popover"
+                  id="sprintPopover"
+                  role="menu"
+                  aria-hidden="true"
+                >
+                  <button class="sprint-option" role="menuitem" data-mins="15">
+                    15 min
+                  </button>
+                  <button class="sprint-option" role="menuitem" data-mins="25">
+                    25 min
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ringbox">
+              <svg class="ring" viewBox="0 0 44 44" aria-hidden="true">
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  stroke="var(--ring-bg)"
+                  stroke-width="6"
+                  fill="none"
+                />
+                <circle
+                  id="ringProgress"
+                  cx="22"
+                  cy="22"
+                  r="18"
+                  stroke="url(#grad)"
+                  stroke-width="6"
+                  fill="none"
+                  stroke-linecap="round"
+                  transform="rotate(-90 22 22)"
+                  stroke-dasharray="113"
+                  stroke-dashoffset="113"
+                />
+
+                <defs>
+                  <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="var(--accent)" />
+                    <stop offset="100%" stop-color="var(--accent-strong)" />
+                  </linearGradient>
+                </defs>
+
+                <text x="22" y="25" text-anchor="middle" id="ringLabel">
+                  0%
+                </text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="progress" aria-hidden="true">
+            <div class="bar" id="bar"></div>
+          </div>
+
+          <div class="celebrate" id="celebrate">Goal reached! Nice work.</div>
+
+          <div class="sprint-banner" id="sprintBanner">
+            ⏱️ Sprint complete — nice work!
+          </div>
+
+          <textarea
+            id="editor"
+            placeholder="Start writing… (Tip: ⌘/Ctrl+S to save, ⌘/Ctrl+E to export)"
+          ></textarea>
+          <button
+            id="exitFocus"
+            class="btn secondary exit-focus"
+            title="Exit focus mode"
+          >
+            Exit
+          </button>
+
+          <!-- Focus Mode Footer -->
+          <div class="focus-footer" id="focusFooter">
+            <div class="focus-stats">
+              <span id="focusWords">0</span> /
+              <span id="focusGoal">1000</span> words ·
+              <span id="focusPercent">0</span>%
+            </div>
+            <div class="focus-progress">
+              <div class="focus-bar" id="focusBar"></div>
+            </div>
+            <div class="focus-sprint" id="focusSprint"></div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="left">
+            <div class="clear-menu-wrap" style="position: relative">
+              <button
+                class="btn"
+                id="clearBtn"
+                title="Clear options"
+                aria-haspopup="menu"
+                aria-controls="clearMenu"
+                aria-expanded="false"
+              >
+                Clear ▾
+              </button>
+              <div
+                id="clearMenu"
+                class="export-menu"
+                aria-hidden="true"
+                role="menu"
+              >
+                <button
+                  class="export-option"
+                  role="menuitem"
+                  id="clearEditorBtn"
+                >
+                  Clear editor
+                </button>
+                <button
+                  class="export-option export-option-danger"
+                  role="menuitem"
+                  id="newSessionBtn"
+                >
+                  New session
+                </button>
+              </div>
+            </div>
+            <button class="btn" id="saveBtn" title="Save to browser">
+              Save
+            </button>
+
+            <button
+              class="btn"
+              id="exportBtn"
+              title="Download your work"
+              aria-haspopup="menu"
+              aria-controls="exportMenu"
+              aria-expanded="false"
+            >
+              Export ▾
+            </button>
+
+            <!-- Export Menu -->
+            <div
+              id="exportMenu"
+              class="export-menu"
+              aria-hidden="true"
+              role="menu"
+            >
+              <button class="export-option" role="menuitem" data-type="txt">
+                Export as .txt
+              </button>
+              <button class="export-option" role="menuitem" data-type="docx">
+                Export as .docx
+              </button>
+              <button class="export-option" role="menuitem" data-type="md">
+                Export as .md
+              </button>
+            </div>
+            <!-- END Export Menu -->
+
+            <label class="btn" for="importFile" title="Import text">
+              Import
+              <input
+                id="importFile"
+                type="file"
+                accept=".txt,.md,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                style="display: none"
+              />
+            </label>
+          </div>
+          <div class="right">
+            <button class="btn success" id="focusBtn" title="Toggle focus mode">
+              Focus Mode
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/docx@8.1.3/build/index.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://unpkg.com/tocktimer@1.1.1/tock.min.js"></script>
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <script src="script.js"></script>
+
+    <audio
+      id="chime"
+      src="/sounds/mixkit-uplifting-bells-notification-938.wav"
+      preload="metadata"
+    ></audio>
+    <div
+      id="saveToast"
+      class="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      Saved ✓
+    </div>
+  </body>
+</html>

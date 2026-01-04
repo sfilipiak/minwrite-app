@@ -1,0 +1,54 @@
+# --- OS junk ---
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# --- Node / tooling ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# --- Build outputs (if you add a build later) ---
+dist/
+build/
+.tmp/
+.tmp*/
+.cache/
+.parcel-cache/
+.vite/
+.svelte-kit/
+.next/
+out/
+coverage/
+
+# --- Env / secrets (avoid committing) ---
+.env
+.env.*
+*.local
+
+# --- Editors / IDEs ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.iml
+
+# --- Logs / misc ---
+*.log
+*.log.*
+*.swp
+*.swo
+
+# --- Mac resource forks ---
+._*

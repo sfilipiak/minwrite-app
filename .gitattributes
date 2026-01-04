@@ -1,0 +1,9 @@
+# normalize line endings in text files
+* text=auto eol=lf
+
+# mark binaries so git won't diff them
+*.wav binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
