@@ -688,7 +688,7 @@ function updateAll() {
   // Calculate all values first (no DOM access)
   const words = countWords(editor.value);
   const remaining = Math.max(0, goal - words);
-  const pct = Math.min(100, Math.round((words / goal) * 100));
+  const pct = Math.min(100, Math.floor((words / goal) * 100));
   const CIRC = 2 * Math.PI * RING_RADIUS;
   const offset = CIRC * (1 - pct / 100);
   const isGoalComplete = pct >= 100;
@@ -1230,9 +1230,9 @@ async function updateSessionStats() {
     };
   }
 
-  // 3. Update minutes for display
-  const savedTyping = await storage.get('wt:typingTime', { time: 0 });
-  const mins = Math.floor(savedTyping.time / 60000);
+  // 3. Update minutes for display (only use time if it's from today)
+  const savedTyping = await storage.get('wt:typingTime', { time: 0, date: null });
+  const mins = savedTyping.date === new Date().toDateString() ? Math.floor(savedTyping.time / 60000) : 0;
   session.minutes = mins;
 
   // 4. Update UI (Read-Only) with null checks
@@ -1300,7 +1300,8 @@ async function updateAllStatsTransaction(wordsGained) {
         };
       }
 
-      const mins = Math.floor((savedTyping?.value?.time || 0) / 60000);
+      const typingIsFromToday = savedTyping?.value?.date === new Date().toDateString();
+      const mins = typingIsFromToday ? Math.floor((savedTyping?.value?.time || 0) / 60000) : 0;
       currentSession.minutes = mins;
       currentSession.words += wordsGained;
 
