@@ -561,10 +561,11 @@ const els = {
 };
 
 function countWords(text) {
-  // Word count: split on whitespace, ignore stray punctuation
-  const cleaned = text.replace(/[\n\t]+/g, ' ');
-  const arr = cleaned.trim().split(/\s+/).filter(Boolean);
-  return arr.length ? arr.length : 0;
+  // Word count: split on whitespace, only count tokens with letters or numbers
+  // This matches standard word processor behavior (Word, Pages, Google Docs)
+  const arr = text.trim().split(/\s+/);
+  // Only count tokens containing at least one letter or digit (Unicode-aware)
+  return arr.filter(token => /[\p{L}\p{N}]/u.test(token)).length;
 }
 
 /**
