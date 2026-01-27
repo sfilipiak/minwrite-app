@@ -561,8 +561,8 @@ const els = {
 };
 
 function countWords(text) {
-  // Robust-ish word count: split on whitespace & em dashes, ignore stray punctuation
-  const cleaned = text.replace(/—/g, ' ').replace(/[\n\t]+/g, ' ');
+  // Word count: split on whitespace, ignore stray punctuation
+  const cleaned = text.replace(/[\n\t]+/g, ' ');
   const arr = cleaned.trim().split(/\s+/).filter(Boolean);
   return arr.length ? arr.length : 0;
 }
